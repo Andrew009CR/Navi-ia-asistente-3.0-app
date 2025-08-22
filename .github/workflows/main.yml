@@ -38,8 +38,10 @@ jobs:
           unzip -q gradle.zip
           echo "$GITHUB_WORKSPACE/gradle-8.7/bin" >> $GITHUB_PATH
 
-      - name: Build debug APK
-        run: gradle -p . clean assembleDebug
+       - name: Build debug APK
+         run: gradle -p app clean assembleDebug
+
+        
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
