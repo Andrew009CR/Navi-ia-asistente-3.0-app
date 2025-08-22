@@ -1,7 +1,7 @@
 name: Build Debug APK
 
 on:
-  workflow_dispatch:   # para que aparezca el botón "Run workflow"
+  workflow_dispatch:   # Muestra el botón "Run workflow"
   push:
     branches: [ main ]
     paths:
@@ -9,11 +9,12 @@ on:
       - "build.gradle.kts"
       - "settings.gradle.kts"
       - "app/build.gradle.kts"
-      - ".github/workflows/android.yml"
+      - ".github/workflows/main.yml"
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,20 +33,23 @@ jobs:
           sdkmanager --install "platform-tools" "platforms;android-35" "build-tools;35.0.0" || true
           yes | sdkmanager --licenses
 
+      # Compila el módulo :app (no en la raíz)
+      # Si tu repo tiene gradlew + carpeta gradle/, usa esta opción:
+      # - name: Build debug APK
+      #   run: ./gradlew clean :app:assembleDebug
+
+      # Si NO tienes gradlew en el repo, usa system Gradle:
       - name: Install Gradle 8.7
         run: |
           curl -L -o gradle.zip https://services.gradle.org/distributions/gradle-8.7-bin.zip
           unzip -q gradle.zip
           echo "$GITHUB_WORKSPACE/gradle-8.7/bin" >> $GITHUB_PATH
 
-       - name: Build debug APK
-         run: gradle -p app clean assembleDebug
-
-        
+      - name: Build debug APK (system Gradle)
+        run: gradle -p app clean assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: NaviAsistenteIA-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
-
